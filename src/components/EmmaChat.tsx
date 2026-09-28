@@ -88,16 +88,26 @@ function AvailabilityResult({
   );
 }
 
-function BookingResult({ output }: { output: Record<string, unknown> }) {
+type BookingOutput = {
+  ok?: boolean;
+  error?: string;
+  reference?: string;
+  package?: string;
+  location?: string;
+  date?: string;
+  time?: string;
+};
+
+function BookingResult({ output }: { output: BookingOutput }) {
   if (!output.ok) {
-    return <p className="text-xs text-destructive">{String(output.error ?? "Booking failed.")}</p>;
+    return <p className="text-xs text-destructive">{output.error ?? "Booking failed."}</p>;
   }
   return (
     <div className="flex items-start gap-2 text-xs">
       <Check className="mt-0.5 size-3.5 shrink-0 text-primary" />
       <span>
-        <span className="font-medium">{String(output.package)}</span> · {String(output.location)} ·{" "}
-        {String(output.date)} at {String(output.time)} · ref {String(output.reference)}
+        <span className="font-medium">{output.package}</span> · {output.location} · {output.date} at{" "}
+        {output.time} · ref {output.reference}
       </span>
     </div>
   );
@@ -110,16 +120,19 @@ const TOOL_LABELS: Record<string, { label: string; icon: typeof Camera }> = {
   "tool-bookSession": { label: "Reserving the session", icon: Check },
 };
 
-function ToolPartView({ part }: { part: Record<string, unknown> }) {
-  const type = String(part.type);
+type ToolPartLike = {
+  type: string;
+  state?: "input-streaming" | "input-available" | "output-available" | "output-error";
+  input?: unknown;
+  output?: unknown;
+  errorText?: string;
+};
+
+function ToolPartView({ part }: { part: ToolPartLike }) {
+  const type = part.type;
   const meta = TOOL_LABELS[type];
-  const state = part.state as
-    | "input-streaming"
-    | "input-available"
-    | "output-available"
-    | "output-error"
-    | undefined;
-  const output = part.output as Record<string, unknown> | undefined;
+  const state = part.state;
+  const output = part.output;
 
   return (
     <Tool defaultOpen={false} className="border-border bg-cream/70">
@@ -131,7 +144,8 @@ function ToolPartView({ part }: { part: Record<string, unknown> }) {
       <ToolContent>
         <ToolInput input={part.input} />
         <ToolOutput
-          errorText={part.errorText as string | undefined}
+          errorText={part.errorText}
+
           output={
             output ? (
               type === "tool-recommendPackages" ? (
