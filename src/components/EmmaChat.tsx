@@ -21,46 +21,14 @@ import {
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "@/components/ai-elements/tool";
 import type { StudioLocation, StudioPackage } from "@/lib/studio-data";
+import { useSessionKey } from "@/lib/session";
 import { loadConversation } from "@/lib/studio.functions";
-
-const SESSION_STORAGE_KEY = "golden-hour-atx-session";
 
 const OPENERS = [
   "What packages do you offer?",
   "Where should we shoot in Austin?",
   "What's open this weekend?",
 ];
-
-function newSessionKey() {
-  return typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function useSessionKey() {
-  const [sessionKey, setSessionKey] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem(SESSION_STORAGE_KEY);
-    if (stored) {
-      setSessionKey(stored);
-      return;
-    }
-    const created = newSessionKey();
-    window.localStorage.setItem(SESSION_STORAGE_KEY, created);
-    setSessionKey(created);
-  }, []);
-
-  const reset = useCallback(() => {
-    const created = newSessionKey();
-    window.localStorage.setItem(SESSION_STORAGE_KEY, created);
-    setSessionKey(created);
-    return created;
-  }, []);
-
-  return { sessionKey, reset };
-}
 
 function PackageResult({ output }: { output: { packages: StudioPackage[]; highlight: string | null } }) {
   return (
@@ -230,6 +198,18 @@ function ChatSurface({
     sendMessage({ text });
   };
 
+  useEffect(() => {
+    const onAsk = (event: Event) => {
+      const text = (event as CustomEvent<string>).detail;
+      if (!text || busy) return;
+      setError(null);
+      sendMessage({ text });
+      focusComposer();
+    };
+    window.addEventListener("emma:ask", onAsk);
+    return () => window.removeEventListener("emma:ask", onAsk);
+  }, [busy, focusComposer, sendMessage]);
+
   const handleSubmit = (message: PromptInputMessage) => {
     send(message.text ?? "");
   };
@@ -393,5 +373,3 @@ export function EmmaChat({ onBookingChange }: { onBookingChange: () => void }) {
     />
   );
 }
-
-export { SESSION_STORAGE_KEY };
