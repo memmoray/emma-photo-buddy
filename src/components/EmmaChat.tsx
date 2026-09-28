@@ -156,7 +156,8 @@ function ToolPartView({ part }: { part: Record<string, unknown> }) {
   return (
     <Tool defaultOpen={false} className="border-border bg-cream/70">
       <ToolHeader
-        type={(meta?.label ?? type.replace("tool-", "")) as never}
+        title={meta?.label ?? type.replace("tool-", "")}
+        type={type as never}
         state={state ?? "input-available"}
       />
       <ToolContent>
