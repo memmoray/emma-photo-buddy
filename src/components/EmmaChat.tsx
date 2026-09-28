@@ -155,7 +155,7 @@ function ToolPartView({ part }: { part: ToolPartLike }) {
               ) : type === "tool-checkAvailability" ? (
                 <AvailabilityResult output={output as never} />
               ) : (
-                <BookingResult output={output} />
+                <BookingResult output={output as BookingOutput} />
               )
             ) : undefined
           }
@@ -378,7 +378,7 @@ export function EmmaChat({ onBookingChange }: { onBookingChange: () => void }) {
     <ChatSurface
       key={sessionKey}
       sessionKey={sessionKey}
-      initialMessages={history.data.messages}
+      initialMessages={JSON.parse(history.data.messagesJson) as UIMessage[]}
       onReset={() => {
         reset();
         onBookingChange();

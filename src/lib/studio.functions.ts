@@ -35,7 +35,7 @@ export const loadConversation = createServerFn({ method: "GET" })
       .eq("session_key", data.sessionKey)
       .maybeSingle();
 
-    if (!conversation.data?.id) return { messages: [] as UIMessage[] };
+    if (!conversation.data?.id) return { messagesJson: "[]" };
 
     const { data: rows, error } = await supabaseAdmin
       .from("messages")
@@ -45,7 +45,7 @@ export const loadConversation = createServerFn({ method: "GET" })
 
     if (error) {
       console.error("Failed to load messages:", error.message);
-      return { messages: [] as UIMessage[] };
+      return { messagesJson: "[]" };
     }
 
     const messages = (rows ?? []).map((row) => ({
@@ -54,7 +54,7 @@ export const loadConversation = createServerFn({ method: "GET" })
       parts: (row.parts ?? []) as UIMessage["parts"],
     })) as UIMessage[];
 
-    return { messages };
+    return { messagesJson: JSON.stringify(messages) };
   });
 
 export const getAvailability = createServerFn({ method: "GET" }).handler(async () => {
