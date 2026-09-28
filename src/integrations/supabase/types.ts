@@ -14,7 +14,118 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          client_email: string
+          client_name: string
+          client_phone: string | null
+          conversation_id: string | null
+          created_at: string
+          id: string
+          location: string
+          notes: string | null
+          package_name: string
+          price_usd: number
+          session_date: string
+          session_time: string
+          status: string
+        }
+        Insert: {
+          client_email: string
+          client_name: string
+          client_phone?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          location: string
+          notes?: string | null
+          package_name: string
+          price_usd: number
+          session_date: string
+          session_time: string
+          status?: string
+        }
+        Update: {
+          client_email?: string
+          client_name?: string
+          client_phone?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          location?: string
+          notes?: string | null
+          package_name?: string
+          price_usd?: number
+          session_date?: string
+          session_time?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          session_key: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_key: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          parts: Json
+          role: string
+          sdk_message_id: string | null
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          parts?: Json
+          role: string
+          sdk_message_id?: string | null
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          parts?: Json
+          role?: string
+          sdk_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
